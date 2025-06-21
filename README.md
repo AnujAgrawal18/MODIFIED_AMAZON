@@ -61,7 +61,7 @@
 ### 🚀 Deployment Guide
 
 ```bash
-git clone git@github.com:anujagrawal18/MODIFIED_AMAZON.git
+git clone git@github.com:AnujAgrawal18/MODIFIED_AMAZON.git
 cd MODIFIED-AMAZON
 
 # MongoDB Setup

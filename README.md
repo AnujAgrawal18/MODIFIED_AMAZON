@@ -128,6 +128,21 @@ Buyers must confirm receipt via button/signature upon delivery arrival to preven
 
 ---
 
+### 🔹 The navigation bar contains new sections like
+#### Educational Section: 
+This section aims to inform and educate customers about our INITIATIVE.
+#### Rewards: 
+Customers accumulate **TrustCoins** by:
+- Uploading authentic reviews  
+- Confirming deliveries honestly  
+These TrustCoins can be redeemed in a **Rewards & Gifts section** featuring:
+- Exclusive discount coupons  
+- Merchandise (bags, mugs, t-shirts)  
+- Free delivery tokens 
+<p align="center"><img src="/public/images/newsection.gif" width="700" alt="new section"></p>
+
+---
+
 
 ## 🧭 Project Guide
 

@@ -1,5 +1,7 @@
 'use client'
 
+import React, { useState } from 'react';
+import axios from 'axios';
 import { zodResolver } from '@hookform/resolvers/zod'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -29,45 +31,47 @@ import { IProductInput } from '@/types'
 const productDefaultValues: IProductInput =
   process.env.NODE_ENV === 'development'
     ? {
-        name: 'Sample Product',
-        slug: 'sample-product',
-        category: 'Sample Category',
-        images: ['/images/p11-1.jpg'],
-        brand: 'Sample Brand',
-        description: 'This is a sample description of the product.',
-        price: 99.99,
-        listPrice: 0,
-        countInStock: 15,
-        numReviews: 0,
-        avgRating: 0,
-        numSales: 0,
-        isPublished: false,
-        tags: [],
-        sizes: [],
-        colors: [],
-        ratingDistribution: [],
-        reviews: [],
-      }
+      name: 'Sample Product',
+      slug: 'sample-product',
+      category: 'Sample Category',
+      manufacturerimages: [],
+      sellerimages: [],
+      brand: 'Sample Brand',
+      description: 'This is a sample description of the product.',
+      price: 99.99,
+      listPrice: 0,
+      countInStock: 15,
+      numReviews: 0,
+      avgRating: 0,
+      numSales: 0,
+      isPublished: false,
+      tags: [],
+      sizes: [],
+      colors: [],
+      ratingDistribution: [],
+      reviews: [],
+    }
     : {
-        name: '',
-        slug: '',
-        category: '',
-        images: [],
-        brand: '',
-        description: '',
-        price: 0,
-        listPrice: 0,
-        countInStock: 0,
-        numReviews: 0,
-        avgRating: 0,
-        numSales: 0,
-        isPublished: false,
-        tags: [],
-        sizes: [],
-        colors: [],
-        ratingDistribution: [],
-        reviews: [],
-      }
+      name: '',
+      slug: '',
+      category: '',
+      manufacturerimages: [],
+      sellerimages: [],
+      brand: '',
+      description: '',
+      price: 0,
+      listPrice: 0,
+      countInStock: 0,
+      numReviews: 0,
+      avgRating: 0,
+      numSales: 0,
+      isPublished: false,
+      tags: [],
+      sizes: [],
+      colors: [],
+      ratingDistribution: [],
+      reviews: [],
+    }
 
 const ProductForm = ({
   type,
@@ -79,6 +83,11 @@ const ProductForm = ({
   productId?: string
 }) => {
   const router = useRouter()
+  const [isVerified, setIsVerified] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState('');
+  const [manufacturerimages, setmanufacturerimages] = useState<string[]>([])
+  const [sellerimages, setsellerimages] = useState<string[]>([])
 
   const form = useForm<IProductInput>({
     resolver:
@@ -90,38 +99,56 @@ const ProductForm = ({
   })
 
   const { toast } = useToast()
+
+  const handleVerify = async () => {
+    setVerifying(true);
+    setVerifyError('');
+    setIsVerified(false);
+
+    const description = form.getValues('description');
+
+    if (!manufacturerimages[0] || !sellerimages[0] || !description) {
+      setVerifyError('Please provide at least one manufacturer image, one seller image, and a description.');
+      setVerifying(false);
+      return;
+    }
+    console.log(manufacturerimages[0], sellerimages[0], description)
+    try {
+      const res = await axios.post('http://localhost:3000/admin/products/api/verify', {
+        image1: manufacturerimages[0],
+        image2: sellerimages[0],
+        description,
+      });
+      console.log(res);
+      if (res.data.comparison === 'same' && res.data.match === 'true') {
+        setIsVerified(true);
+      } else {
+        setVerifyError('Verification failed. Please check the images and description.');
+      }
+    } catch (error: any) {
+      setVerifyError('Verification error: ' + error.message);
+    }
+    setVerifying(false);
+  };
+
   async function onSubmit(values: IProductInput) {
     if (type === 'Create') {
       const res = await createProduct(values)
       if (!res.success) {
-        toast({
-          variant: 'destructive',
-          description: res.message,
-        })
+        toast({ variant: 'destructive', description: res.message })
       } else {
-        toast({
-          description: res.message,
-        })
+        toast({ description: res.message })
         router.push(`/admin/products`)
       }
-    }
-    if (type === 'Update') {
-      if (!productId) {
-        router.push(`/admin/products`)
-        return
-      }
+    } else if (type === 'Update' && productId) {
       const res = await updateProduct({ ...values, _id: productId })
       if (!res.success) {
-        toast({
-          variant: 'destructive',
-          description: res.message,
-        })
+        toast({ variant: 'destructive', description: res.message })
       } else {
         router.push(`/admin/products`)
       }
     }
   }
-  const images = form.watch('images')
 
   return (
     <Form {...form}>
@@ -256,44 +283,134 @@ const ProductForm = ({
         <div className='flex flex-col gap-5 md:flex-row'>
           <FormField
             control={form.control}
-            name='images'
-            render={() => (
-              <FormItem className='w-full'>
-                <FormLabel>Images</FormLabel>
-                <Card>
-                  <CardContent className='space-y-2 mt-2 min-h-48'>
-                    <div className='flex justify-start items-center space-x-2'>
-                      {images.map((image: string) => (
-                        <Image
-                          key={image}
-                          src={image}
-                          alt='product image'
-                          className='w-20 h-20 object-cover object-center rounded-sm'
-                          width={100}
-                          height={100}
-                        />
-                      ))}
-                      <FormControl>
-                        <UploadButton
-                          endpoint='imageUploader'
-                          onClientUploadComplete={(res: { url: string }[]) => {
-                            form.setValue('images', [...images, res[0].url])
-                          }}
-                          onUploadError={(error: Error) => {
-                            toast({
-                              variant: 'destructive',
-                              description: `ERROR! ${error.message}`,
-                            })
-                          }}
-                        />
-                      </FormControl>
-                    </div>
-                  </CardContent>
-                </Card>
+            name="manufacturerimages"
+            render={() => {
+              const manufacturerImages = form.watch("manufacturerimages") || [];
+              const removeImage = (urlToRemove: string) => {
+                const updatedImages = manufacturerImages.filter(img => img !== urlToRemove);
+                form.setValue("manufacturerimages", updatedImages, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+              };
 
-                <FormMessage />
-              </FormItem>
-            )}
+              return (
+                <FormItem className="w-full">
+                  <FormLabel>Manufacturer Images</FormLabel>
+                  <Card>
+                    <CardContent className="space-y-2 mt-2 min-h-48">
+                      <div className="flex justify-start items-center space-x-2">
+                        {manufacturerImages.map((image: string, idx: number) => (
+                          <div key={idx} className="relative group w-24 h-24">
+                            <Image
+                              key={idx}
+                              src={image}
+                              alt="product image"
+                              className="w-20 h-20 object-cover object-center rounded-sm"
+                              width={100}
+                              height={100}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(image)}
+                              className="absolute top-[-8px] right-[-8px] bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-90 group-hover:opacity-100"
+                              title="Remove"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+
+                        <FormControl>
+                          <UploadButton
+                            endpoint="imageUploader"
+                            onClientUploadComplete={(res: { url: string }[]) => {
+                              const newImages = [...manufacturerImages, res[0].url];
+                              setmanufacturerimages([...manufacturerImages, res[0].url])
+                              form.setValue("manufacturerimages", newImages, {
+                                shouldDirty: true,
+                                shouldTouch: true,
+                                shouldValidate: true,
+                              });
+                            }}
+                            onUploadError={(error: Error) => {
+                              toast({
+                                variant: "destructive",
+                                description: `ERROR! ${error.message}`,
+                              });
+                            }}
+                          />
+                        </FormControl>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+        </div>
+
+        <div className='flex flex-col gap-5 md:flex-row'>
+          <FormField
+            control={form.control}
+            name='sellerimages'
+            render={() => {
+              const sellerimages = form.watch("sellerimages") || [];
+              const removeImage = (urlToRemove: string) => {
+                const updatedImages = sellerimages.filter(img => img !== urlToRemove);
+                form.setValue("sellerimages", updatedImages, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+              };
+              return (
+                <FormItem className='w-full'>
+                  <FormLabel>Product Images(seller)</FormLabel>
+                  <Card>
+                    <CardContent className='space-y-2 mt-2 min-h-48'>
+                      <div className='flex justify-start items-center space-x-2'>
+                        {sellerimages.map((image: string, idx: number) => (
+                          <div key={idx} className="relative group w-24 h-24">
+                            <Image
+                              key={image}
+                              src={image}
+                              alt='product image'
+                              className='w-20 h-20 object-cover object-center rounded-sm'
+                              width={100}
+                              height={100}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(image)}
+                              className="absolute top-[-8px] right-[-8px] bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-90 group-hover:opacity-100"
+                              title="Remove"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                        <FormControl>
+                          <UploadButton
+                            endpoint='imageUploader'
+                            onClientUploadComplete={(res: { url: string }[]) => {
+                              form.setValue('sellerimages', [...sellerimages, res[0].url])
+                              setsellerimages([...sellerimages, res[0].url])
+                            }}
+                            onUploadError={(error: Error) => {
+                              toast({
+                                variant: 'destructive',
+                                description: `ERROR! ${error.message}`,
+                              })
+                            }}
+                          />
+                        </FormControl>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </FormItem>
+              );
+            }}
           />
         </div>
 
@@ -337,11 +454,24 @@ const ProductForm = ({
             )}
           />
         </div>
+        <div className="space-y-2">
+          <Button
+            type="button"
+            onClick={handleVerify}
+            disabled={verifying}
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          >
+            {verifying ? 'Verifying...' : 'Verify Images & Description'}
+          </Button>
+          {verifyError && <p className="text-red-500 text-sm">{verifyError}</p>}
+          {isVerified && <p className="text-green-600 text-sm">✅ Verification passed</p>}
+        </div>
+
         <div>
           <Button
             type='submit'
             size='lg'
-            disabled={form.formState.isSubmitting}
+            disabled={!isVerified || form.formState.isSubmitting}
             className='button col-span-2 w-full'
           >
             {form.formState.isSubmitting ? 'Submitting...' : `${type} Product `}

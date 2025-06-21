@@ -33,15 +33,15 @@ const ProductCard = ({
   const ProductImage = () => (
     <Link href={`/product/${product.slug}`}>
       <div className='relative h-52'>
-        {(product.images?.length ?? 0) > 1 ? (
+        {(product.manufacturerimages?.length ?? 0) > 1 ? (
           <ImageHover
-            src={product.images?.[0] || '/images/product-placeholder.png'}
-            hoverSrc={product.images?.[1] || '/images/product-placeholder.png'}
+            src={product.manufacturerimages?.[0] || '/images/product-placeholder.png'}
+            hoverSrc={product.manufacturerimages?.[1] || '/images/product-placeholder.png'}
             alt={product.name}
           />
         ) : (
           <Image
-            src={product.images?.[0] || '/images/product-placeholder.png'}
+            src={product.manufacturerimages?.[0] || '/images/product-placeholder.png'}
             alt={product.name}
             fill
             sizes='80vw'
@@ -91,17 +91,17 @@ const ProductCard = ({
             4.8<span className="text-[12px]">/5</span>
           </div>
         </div>
-        <div className="bg-[#e4fcfc] p-1 rounded-lg ">
+        <div className="bg-[#e3f3f8] p-1 rounded-lg ">
           <div className="flex items-center space-x-1 mb-1">
             <FontAwesomeIcon
               icon={faTrophy}
-              className="text-[#41a1ca] max-w-[30px] max-h-[30px]"
+              className="text-[#5642d2] max-w-[30px] max-h-[30px]"
             />
-            <span className="text-sm text-[#41a1ca] font-medium">
+            <span className="text-sm text-[#5642d2] font-medium">
               Product Score
             </span>
           </div>
-          <div className="text-[16xl] font-bold text-[#41a1ca]">
+          <div className="text-[16xl] font-bold text-[#5642d2]">
             9.2<span className="text-[12px]">/10</span>
           </div>
         </div>
@@ -130,7 +130,7 @@ const ProductCard = ({
           category: product.category,
           price: round2(product.price),
           quantity: 1,
-          image: product.images?.[0] || '/images/product-placeholder.png',
+          image: product.manufacturerimages?.[0] || '/images/product-placeholder.png',
         }}
       />
     </div>

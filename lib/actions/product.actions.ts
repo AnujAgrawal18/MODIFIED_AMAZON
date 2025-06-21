@@ -141,7 +141,7 @@ export async function getProductsForCard({
     {
       name: 1,
       href: { $concat: ['/product/', '$slug'] },
-      image: { $arrayElemAt: ['$images', 0] },
+      image: { $arrayElemAt: ['$manufacturerimages', 0] },
     }
   )
     .sort({ createdAt: 'desc' })

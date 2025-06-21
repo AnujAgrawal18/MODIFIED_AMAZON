@@ -43,7 +43,7 @@ export default async function Header() {
       </div>
       <div className='flex items-center px-3 mb-[1px]  bg-gray-800'>
         <Sidebar categories={categories} />
-        <div className='flex items-center flex-wrap gap-3 overflow-hidden   max-h-[42px]'>
+        <div className='flex items-center flex-wrap gap-3 overflow-hidden max-h-[42px]'>
           {(data.headerMenus ?? []).map((menu) => (
             <Link
               href={menu.href}
@@ -53,6 +53,10 @@ export default async function Header() {
               {t('Header.' + menu.name)}
             </Link>
           ))}
+        </div>
+        <div className='flex flex-row font-bold ml-auto text-[20px] mr-10'>
+          <Image src={'/images/trustcoin.jpg'} alt="trustcoin" width={30} height={30} className='rounded-full mr-2'/>
+          100
         </div>
       </div>
     </header>

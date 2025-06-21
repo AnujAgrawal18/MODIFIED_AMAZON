@@ -18,7 +18,7 @@ import { ICarousel } from '@/types'
 
 export function HomeCarousel({ items }: { items: ICarousel[] }) {
   const plugin = React.useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: true })
+    Autoplay({ delay: 2000, stopOnInteraction: true })
   )
 
   const t = useTranslations('Home')
@@ -34,16 +34,16 @@ export function HomeCarousel({ items }: { items: ICarousel[] }) {
       <CarouselContent>
         {items.map((item) => (
           <CarouselItem key={item.title}>
-            <Link href={item.url}>
-              <div className='flex aspect-[16/6] items-center justify-center p-6 relative -m-1'>
+            {/* <Link href={item.url}> */}
+              <div className='flex aspect-[12/4] items-center justify-center p-6 relative -m-1'>
                 <Image
                   src={item.image}
                   alt={item.title}
                   fill
-                  className='object-cover'
+                  className=''
                   priority
                 />
-                <div className='absolute w-1/3 left-16 md:left-32 top-1/2 transform -translate-y-1/2'>
+                {/* <div className='absolute w-1/3 left-16 md:left-32 top-1/2 transform -translate-y-1/2'>
                   <h2
                     className={cn(
                       'text-xl md:text-6xl font-bold mb-4 text-primary  '
@@ -54,9 +54,9 @@ export function HomeCarousel({ items }: { items: ICarousel[] }) {
                   <Button className='hidden md:block'>
                     {t(`${item.buttonCaption}`)}
                   </Button>
-                </div>
+                </div> */}
               </div>
-            </Link>
+            {/* </Link> */}
           </CarouselItem>
         ))}
       </CarouselContent>

@@ -216,7 +216,7 @@ export default async function ProductDetails(props: {
       <section>
         <div className='grid grid-cols-1 md:grid-cols-5 h-full '>
           <div className='col-span-2'>
-            <ProductGallery images={product.images} />
+            <ProductGallery images={product.manufacturerimages} />
           </div>
 
           <div className='flex w-full flex-col gap-2 md:p-5 col-span-2'>
@@ -260,7 +260,7 @@ export default async function ProductDetails(props: {
                   <div className='absolute h-[60px] w-[120px] hover:opacity-100 opacity-0 z-10'>
                     <div className='text-black text-[12px] mt-1 bg-white absolute z-20 left-10 top-14 w-[230px] rounded-lg shadow-lg p-4 hover:opacity-0'>
                       <FontAwesomeIcon icon={faCircleExclamation} />
-                      <span>Awarded by our AI verification system, this badge confirms that the product is authentic and aligns with its official description and visuals.</span>
+                      <span>Verified by our AI verification system, this badge confirms that the product is authentic and aligns with its official description and visuals.</span>
                     </div>
                   </div>
                   <img src="https://img.freepik.com/premium-vector/verified-badge-ribbon-gradient-style_78370-6047.jpg" alt="" className="h-[40px] w-[40px]" />
@@ -367,7 +367,7 @@ export default async function ProductDetails(props: {
                         category: product.category,
                         price: round2(product.price),
                         quantity: 1,
-                        image: product.images[0],
+                        image: product.manufacturerimages[0],
                         size: size || product.sizes[0],
                         color: color || product.colors[0],
                       }}

@@ -24,7 +24,7 @@ const DeliveryDashboard = () => {
     const [notes, setNotes] = useState("")
     const [status, setStatus] = useState<DeliveryInfo["status"]>("pending")
     const [isLoading, setIsLoading] = useState(false)
-
+    const [orderid, setOrderId] = useState<string | null>(null)
     const [deliveryDetails, setDeliveryDetails] = useState<{ data: any[]; totalPages: number } | null>(null)
 
     // Fetch orders on mount
@@ -32,13 +32,18 @@ const DeliveryDashboard = () => {
         const fetchOrders = async () => {
             const result = await getAllOrders({ limit: 1, page: 1 })
             setDeliveryDetails(result)
+            const confirmed = searchParams.get(`deliveryConfirmed`);
+            console.log(confirmed);
+            if (confirmed === 'true') {
+                console.log(result.data[0]._id)
+                setStatus('delivered');
+                setTimeout(() => {
+                    router.push(`/?productverification=${result.data[0]._id}`);
+                }, 3000);
+            }
         }
         fetchOrders()
-        const confirmed = searchParams.get(`deliveryConfirmed`);
-        console.log(confirmed);
-        if (confirmed === 'true') {
-            setStatus('delivered');
-        }
+
     }, [searchParams])
 
     // For demonstration, use the first delivery or handle empty array
@@ -86,6 +91,7 @@ const DeliveryDashboard = () => {
         }
 
         setIsLoading(true)
+        setOrderId(firstDelivery._id)
         router.push(`/?confirmDelivery=${firstDelivery._id}`);
     }
 

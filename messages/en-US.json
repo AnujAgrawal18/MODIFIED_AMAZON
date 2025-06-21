@@ -31,7 +31,9 @@
     "Help": "Help",
     "Site Menu": "Site Menu",
     "Subtotal": "Subtotal",
-    "Go to cart": "Go to cart"
+    "Go to cart": "Go to cart",
+    "Rewards" : "Rewards",
+    "Education section" : "Education section"
   },
   "Home": {
     "Categories to explore": "Categories to explore",
@@ -47,7 +49,8 @@
     "Your browsing history": "Your browsing history",
     "Most Popular Shoes For Sale": "Most Popular Shoes For Sale",
     "Best Sellers in T-Shirts": "Best Sellers in T-Shirts",
-    "Best Deals on Wrist Watches": "Best Deals on Wrist Watches"
+    "Best Deals on Wrist Watches": "Best Deals on Wrist Watches",
+    "" : ""
   },
   "Product": {
     "Added to Cart": "Added to Cart",

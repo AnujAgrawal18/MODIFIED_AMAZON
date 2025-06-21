@@ -9,6 +9,7 @@ import { z } from 'zod'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import Rating from '@/components/shared/product/rating'
+import axios from 'axios'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -90,34 +91,34 @@ export default function ReviewList({
     }
   }
   const previewMedia = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const preview = document.getElementById('preview');
-      if (!preview) return;
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-      const fileType = file.type;
-      const reader = new FileReader();
+    const preview = document.getElementById('preview');
+    if (!preview) return;
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const fileType = file.type;
+    const reader = new FileReader();
 
-      reader.onload = function (e) {
-        let element;
-        if (fileType.startsWith('image/')) {
-          element = document.createElement('img');
-          if (typeof e.target?.result === 'string') {
-            element.src = e.target.result;
-          }
-          element.className = 'w-[100px] h-[100px] rounded shadow ';
-        } else if (fileType.startsWith('video/')) {
-          element = document.createElement('video');
-          if (typeof e.target?.result === 'string') {
-            element.src = e.target.result;
-          }
-          element.controls = true;
-          element.className = 'w-[100px] h-[100px] rounded shadow';
+    reader.onload = function (e) {
+      let element;
+      if (fileType.startsWith('image/')) {
+        element = document.createElement('img');
+        if (typeof e.target?.result === 'string') {
+          element.src = e.target.result;
         }
-        if (element) preview.appendChild(element);
-      };
+        element.className = 'w-[100px] h-[100px] rounded shadow ';
+      } else if (fileType.startsWith('video/')) {
+        element = document.createElement('video');
+        if (typeof e.target?.result === 'string') {
+          element.src = e.target.result;
+        }
+        element.controls = true;
+        element.className = 'w-[100px] h-[100px] rounded shadow';
+      }
+      if (element) preview.appendChild(element);
+    };
 
-      reader.readAsDataURL(file);
-    }
+    reader.readAsDataURL(file);
+  }
   const loadMoreReviews = async () => {
     if (totalPages !== 0 && page > totalPages) return
     setLoadingReviews(true)
@@ -151,7 +152,14 @@ export default function ReviewList({
   })
   const [open, setOpen] = useState(false)
   const onSubmit: SubmitHandler<CustomerReview> = async (values) => {
-    const res = await createUpdateReview({
+    if (!isverified) {
+      const isauthentic = await handleverify(values)
+      if (String(isauthentic) === '"authentic"') {
+        setisverified(true)
+        return;
+      }
+    }
+    if(isverified) {const res = await createUpdateReview({
       data: { ...values, product: product._id },
       path: `/product/${product.slug}`,
     })
@@ -164,9 +172,19 @@ export default function ReviewList({
     reload()
     toast({
       description: res.message,
-    })
+    })}
   }
+  const [isverified, setisverified] = useState(false);
 
+  const handleverify = async (value: { product: string; user: string; isVerifiedPurchase: boolean; title: string; comment: string; rating: number; image?: string | undefined }) => {
+    console.log(value.comment)
+    const res = await axios.post('http://localhost:3000/admin/products/api/review-verify', {
+            reviewText : value.comment
+          });
+    console.log(res);
+    return res.data.result
+
+  }
   const handleOpenForm = async () => {
     form.setValue('product', product._id)
     form.setValue('user', userId!)
@@ -353,15 +371,19 @@ export default function ReviewList({
 
                       <p className="text-xs text-gray-500 mt-2">Only honest, helpful reviews are rewarded.</p>
                       <DialogFooter>
-                        <Button
+                        {<Button
                           type='submit'
                           size='lg'
                           disabled={form.formState.isSubmitting}
                         >
-                          {form.formState.isSubmitting
-                            ? t('Submitting')
-                            : t('Submit')}
-                        </Button>
+                          {!isverified ? (form.formState.isSubmitting
+                            ? 'verifying'
+                            : 'Verify') : (form.formState.isSubmitting
+                            ? 'submitting'
+                            : 'submit')
+                          }
+                          
+                        </Button>}
                       </DialogFooter>
                     </form>
                   </Form>
@@ -393,44 +415,44 @@ export default function ReviewList({
             </Card>
           )}
           {
-          reviews.map((review: IReviewDetails) => (
-            <Card key={review._id}>
-              <CardHeader>
-                <div className='flex-between'>
-                  <CardTitle>{review.title}</CardTitle>
-                  <div className='italic text-sm flex'>
-                    <Check className='h-4 w-4' /> {t('Verified Purchase')}
+            reviews.map((review: IReviewDetails) => (
+              <Card key={review._id}>
+                <CardHeader>
+                  <div className='flex-between'>
+                    <CardTitle>{review.title}</CardTitle>
+                    <div className='italic text-sm flex'>
+                      <Check className='h-4 w-4' /> {t('Verified Purchase')}
+                    </div>
                   </div>
-                </div>
-                <CardDescription>{review.comment}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className='flex space-x-4 text-sm text-muted-foreground'>
-                  <Rating rating={review.rating} />
-                  <div className='flex items-center'>
-                    <User className='mr-1 h-3 w-3' />
-                    {review.user ? review.user.name : t('Deleted User')}
+                  <CardDescription>{review.comment}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className='flex space-x-4 text-sm text-muted-foreground'>
+                    <Rating rating={review.rating} />
+                    <div className='flex items-center'>
+                      <User className='mr-1 h-3 w-3' />
+                      {review.user ? review.user.name : t('Deleted User')}
+                    </div>
+                    <div className='flex items-center'>
+                      <Calendar className='mr-1 h-3 w-3' />
+                      {review.createdAt.toString().substring(0, 10)}
+                    </div>
                   </div>
-                  <div className='flex items-center'>
-                    <Calendar className='mr-1 h-3 w-3' />
-                    {review.createdAt.toString().substring(0, 10)}
-                  </div>
-                </div>
-                {/* Show review image if present */}
-                {review.image && (
-                  <div className="mt-2">
-                    <Image
-                      src={review.image}
-                      alt="Review"
-                      width={120}
-                      height={120}
-                      className="rounded"
-                    />
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                  {/* Show review image if present */}
+                  {review.image && (
+                    <div className="mt-2">
+                      <Image
+                        src={review.image}
+                        alt="Review"
+                        width={120}
+                        height={120}
+                        className="rounded"
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
           <div ref={ref}>
             {page <= totalPages && (
               <Button variant={'link'} onClick={loadMoreReviews}>

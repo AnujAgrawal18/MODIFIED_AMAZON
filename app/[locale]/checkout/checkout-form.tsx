@@ -206,7 +206,6 @@ const CheckoutForm = () => {
       })
       clearCart()
       router.push(`/checkout/${res.data?.orderId}`)
-      router.push(`/delivery/${res.data?.orderId}`)
     }
   }
   const handleSelectPaymentMethod = () => {
